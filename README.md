@@ -1,32 +1,35 @@
 # mona-vn-normalize
 
-**Chuẩn hoá tiếng Việt trước khi đưa vào giọng nói (TTS) hoặc xử lý ngôn ngữ.**
-*Vietnamese text normalizer for TTS/NLP — turns numbers, money, dates, phone numbers and abbreviations into properly spelled Vietnamese words.*
+A Python library that rewrites numbers, money, dates, times, phone numbers, units, abbreviations and Roman numerals in Vietnamese text as spelled-out Vietnamese words, for text-to-speech (TTS) and NLP pipelines.
 
-Đây là bộ đồ nghề MONA tách ra từ chuyên mục [MONA AI Lab](https://mona.media/ai-lab/) khi tụi em test mấy model giọng nói. Máy đọc tiếng Việt hay vấp đúng ở chỗ số, tiền, ngày giờ, số điện thoại, viết tắt — thư viện này biến chúng thành chữ đọc được, đúng dấu, để engine TTS không đọc sai.
+The library targets Vietnamese text only. It was built while testing speech models for [MONA AI Lab](https://mona.media/ai-lab/).
 
-## Vì sao có bộ này
+## What it converts
 
-Model TTS mới bây giờ đọc tiếng Việt khá tự nhiên, nhưng đưa `150.000đ`, `14:30`, `0909 636 648`, `Tp.HCM` vào là nó lúng túng ngay: đọc thiếu số, đọc sai đơn vị, hoặc bỏ luôn. Khách nghe tổng đài đọc "một trăm năm mươi nghìn đồng" khác hẳn nghe "một năm không không không đ". Việc chuẩn hoá phần chữ TRƯỚC khi đẩy vào TTS là khâu quyết định chất lượng, mà lại ít ai làm tử tế cho tiếng Việt. Tụi em làm, rồi mở ra.
+| Group | Example input → output |
+| --- | --- |
+| Numbers | `1234` → *một nghìn hai trăm ba mươi tư* · `105` → *một trăm lẻ năm* |
+| Money | `150.000đ` → *một trăm năm mươi nghìn đồng* · `2tr` → *hai triệu đồng* · `1,5 triệu` → *một triệu năm trăm nghìn đồng* |
+| Dates | `15/09/2026` → *ngày mười lăm tháng chín năm hai nghìn không trăm hai mươi sáu* |
+| Times | `14:30` → *mười bốn giờ ba mươi phút* · `9h` → *chín giờ* |
+| Phone numbers | `1900 636 648` → *một chín không không sáu ba sáu sáu bốn tám* |
+| Abbreviations | `Tp.HCM` → *thành phố Hồ Chí Minh* · `TNHH` → *trách nhiệm hữu hạn* |
+| Units | `25°C` → *hai mươi lăm độ C* · `50%` → *năm mươi phần trăm* · `10km` → *mười ki lô mét* |
+| Roman numerals | `thế kỷ XXI` → *thế kỷ hai mươi mốt* |
 
-## Nó làm được gì
+## Install
 
-| Nhóm | Ví dụ |
-|---|---|
-| Số | `1234` → *một nghìn hai trăm ba mươi tư* · `105` → *một trăm lẻ năm* |
-| Tiền | `150.000đ` → *một trăm năm mươi nghìn đồng* · `2tr` → *hai triệu đồng* · `1,5 triệu` → *một triệu năm trăm nghìn đồng* |
-| Ngày | `15/09/2026` → *ngày mười lăm tháng chín năm hai nghìn không trăm hai mươi sáu* |
-| Giờ | `14:30` → *mười bốn giờ ba mươi phút* · `9h` → *chín giờ* |
-| Số điện thoại | `1900 636 648` → *một chín không không sáu ba sáu sáu bốn tám* |
-| Viết tắt | `Tp.HCM` → *thành phố Hồ Chí Minh* · `TNHH` → *trách nhiệm hữu hạn* |
-| Đơn vị | `25°C` → *hai mươi lăm độ C* · `50%` → *năm mươi phần trăm* · `10km` → *mười ki lô mét* |
-| Số La Mã | `thế kỷ XXI` → *thế kỷ hai mươi mốt* |
-
-## Chạy thử
+Requires Python 3.9+. Standard library only.
 
 ```bash
 git clone https://github.com/mona-software/mona-vn-normalize
 cd mona-vn-normalize
+pip install -e .
+```
+
+## Quick start
+
+```bash
 python examples/demo.py
 ```
 
@@ -38,29 +41,27 @@ normalize("Hẹn lúc 14:30 ngày 15/09/2026 tại Tp.HCM, giá 150.000đ.")
 #    không trăm hai mươi sáu tại thành phố Hồ Chí Minh, giá một trăm năm mươi nghìn đồng."
 ```
 
-Bật/tắt từng nhóm nếu cần: `normalize(text, phone=False, roman=False)`. Mỗi nhóm cũng có hàm riêng gọi thẳng được: `read_number`, `read_currency`, `read_date`, `read_time`, `read_phone`, `read_abbreviation`, `read_unit`, `read_roman`.
+## Usage
 
-## Cài như thư viện
+`normalize(text, *, currency=True, phone=True, dates=True, times=True, numbers=True, units=True, abbrev=True, roman=True)` runs the converters in a fixed order (currency, phone, dates, times, abbreviations, Roman numerals, units, then plain numbers) so overlapping tokens are handled before generic number reading. Turn any group off with its keyword:
 
-```bash
-pip install -e .          # dùng thẳng trong dự án
-pytest -q                 # 59 test, chạy được offline, không cần API key
+```python
+normalize(text, phone=False, roman=False)
 ```
 
-Chỉ dùng thư viện chuẩn của Python (>=3.9), không kéo dependency nặng.
+Single-value helpers are also exported: `read_number`, `read_integer`, `read_currency`, `read_date`, `read_time`, `read_phone`, `read_abbreviation`, `read_unit`, `read_roman`, `roman_to_int` and `clean_text`.
 
-## Dữ liệu
+## Development
 
-Toàn bộ ví dụ trong test là **tự soạn** — không có một dòng dữ liệu khách hàng thật nào. Anh chị đọc, sửa, thêm case thoải mái; gặp câu tiếng Việt nào máy đọc sai thì mở issue, tụi em thêm luật.
+```bash
+pip install -e ".[dev]"
+pytest -q
+```
 
-## Tuyên ngôn thị trường cùng tiến
+Tests run offline; all test inputs are hand-written examples.
 
-MONA là một công ty phần mềm, chuyển đổi số, chuyển đổi AI, nhưng trên hết, MONA là một công ty dịch vụ B2B, là người hưởng lợi trực tiếp từ việc: **những doanh nghiệp Việt càng thành công, MONA càng có lợi**. Thị trường đi xuống, đi chậm, công nghệ yếu mới chính là điểm giết chết các cơ hội làm ăn trong tương lai của MONA. Nên, hơn ai hết, MONA mong muốn, và MONA thật sự can thiệp vào việc giúp đỡ anh chị thành công. Và chuyển đổi AI là chìa khóa cho sự thành công đó của chúng ta.
+## License
 
-## Từ đâu ra
+MIT, see [LICENSE](LICENSE).
 
-Từ [MONA AI Lab](https://mona.media/ai-lab/) — nơi MONA test model AI mới trên sản phẩm thật (tổng đài, chatbot, phần mềm) rồi báo cáo thẳng cái nào xài được. Xem thêm kho tài nguyên mở [MONA Open](https://mona.media/mona-open/), bộ công cụ [MONA GEO OS](https://mona.media/mona-geo-os/), và tác giả [Khánh Hùng — Founder The MONA](https://mona.media/profile/vy-nguyen-khanh-hung/).
-
-Giấy phép: [MIT](LICENSE).
-
-**`mona-vn-normalize` là sản phẩm của MONA Software, thành viên The MONA Group.**
+**`mona-vn-normalize` is a product of MONA Software, a member of The MONA Group.**
