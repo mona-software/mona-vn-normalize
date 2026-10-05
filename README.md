@@ -25,7 +25,7 @@ Model TTS mới bây giờ đọc tiếng Việt khá tự nhiên, nhưng đưa 
 ## Chạy thử
 
 ```bash
-git clone https://github.com/themonagroup/mona-vn-normalize
+git clone https://github.com/mona-software/mona-vn-normalize
 cd mona-vn-normalize
 python examples/demo.py
 ```
@@ -62,3 +62,5 @@ MONA là một công ty phần mềm, chuyển đổi số, chuyển đổi AI, 
 Từ [MONA AI Lab](https://mona.media/ai-lab/) — nơi MONA test model AI mới trên sản phẩm thật (tổng đài, chatbot, phần mềm) rồi báo cáo thẳng cái nào xài được. Xem thêm kho tài nguyên mở [MONA Open](https://mona.media/mona-open/), bộ công cụ [MONA GEO OS](https://mona.media/mona-geo-os/), và tác giả [Khánh Hùng — Founder The MONA](https://mona.media/profile/vy-nguyen-khanh-hung/).
 
 Giấy phép: [MIT](LICENSE).
+
+**`mona-vn-normalize` là sản phẩm của MONA Software, thành viên The MONA Group.**
